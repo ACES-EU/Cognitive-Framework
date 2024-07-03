@@ -26,7 +26,6 @@ For XGBoost, we improved performance and increased its robustness by using ensem
 After that, we also calculated the feature importances of XGBoost using SHAP.
 
 ## Deploy
-### General Overview
 1. The directory of the dataset to be loaded should be specified in line 2
 2. From line 3 to 7 the code does preprocessing: scaling of the features, defining the target variable, creating numerica features for the categorical ones
 3. From line 8 to 10 the code checks the performances of different ML models on the task at hand in terms of accuracy, f1-score, and confusion matrices. The XGBoost method appears to be the best one
