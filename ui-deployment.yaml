@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cog-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cog-ui
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: cog-ui
+    spec:
+      containers:
+        - name: cog-ui
+          image: hiroregistry/cogui:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cog-ui-service
+spec:
+  selector:
+    app: cog-ui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
