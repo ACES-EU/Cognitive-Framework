@@ -1,0 +1,69 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "model-register"
+  namespace: "default"
+  labels:
+    app: "model-register"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "model-register"
+  template:
+    metadata:
+      labels:
+        app: "model-register"
+    spec:
+      containers:
+        - name: "model-register"
+          imagePullPolicy: Always
+          image: "hiroregistry/cogframework:latest"
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_DB
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: MINIO_ACCESS_KEY
+                  name: mlflow-server-minio-artifact
+                  optional: false
+            - name: MINIO_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: MINIO_SECRET_ACCESS_KEY
+                  name: mlflow-server-minio-artifact
+                  optional: false
+            - name: MINIO_ENDPOINT_URL
+              value: mlflow-minio.kubeflow:9000
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/var/data/ # Mount path for the PVC
+            - name: logs-volume
+              mountPath: /app/var/logs
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: data-pvc # Name of the PVC
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: log-pvc
